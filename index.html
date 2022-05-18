@@ -15,10 +15,12 @@
             }
 
             #indicator{
-                border-color:black;
-                border:10px solid;
+                border:1px solid rgb(100,100,100);
                 border-radius:100%;
-                transition:border-color 0.5s;
+                background-color:rgb(100,100,100);
+                transition:background-color 0.5s;
+                width:20px;
+                height:20px;
                 position:fixed;
                 top:5px;
                 right:5px;
@@ -27,6 +29,7 @@
     </head>
     <body>
         <div id="indicator"></div>
+        <form><label for="send pings">Send Pings:</label><input type="checkbox" id="send pings" name="send pings"></form>
     </body>
     <script>
         const API_DIRECTORY = "https://elliotmcleish.wixsite.com/planner";
@@ -40,10 +43,12 @@
                 }
                 url = url.slice(0,-1);
                 let response = await fetch(url, {method});
+                let isJSON = response.headers.get("Content-Type") == "application/json";
+                console.log(isJSON);
                 return {
                     err:null,
                     response,
-                    body: await response[(response.headers.get("Content-Type") == "application/json") ? "json" : "text"](),
+                    body: await response[isJSON ? "json" : "text"](),
                 };
             } catch(err) {
                 if(err.message == "Failed to fetch" && name!= "ping")
@@ -53,10 +58,11 @@
         }
 
         function setIndicatorColour(col){
-            document.getElementById("indicator").style.borderColor = col;
+            document.getElementById("indicator").style.backgroundColor = col;
         }
 
         async function ping(){
+            if(!document.getElementById("send pings").checked) return;
             let result = await API("ping");
             setIndicatorColour(result.err ? "rgb(230,0,0)" : "rgb(0,200,0)");
         }
