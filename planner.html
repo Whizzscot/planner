@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Planner</title>
+        <meta charset="utf-8">
+        <style>
+            #indicator{
+                border-color:black;
+                border:10px solid;
+                border-radius:100%;
+                transition:border-color 0.5s;
+                position:fixed;
+                top:5px;
+                right:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="indicator"></div>
+    </body>
+    <script>
+        const API_DIRECTORY = "https://elliotmcleish.wixsite.com/planner";
+
+        async function API(name, args = {}, method = "get"){
+            try{
+                let url = `${API_DIRECTORY}/_functions/${name}`;
+                url+="?";
+                for(let argname in args){
+                    url+=`${encodeURIComponent(argname)}=${encodeURIComponent(JSON.stringify(args[argname]))}&`;
+                }
+                url = url.slice(0,-1);
+                let response = await fetch(url, {method});
+                return {
+                    err:null,
+                    response,
+                    body: await response[(response.headers.get("Content-Type") == "application/json") ? "json" : "text"](),
+                };
+            } catch(err) {
+                if(err.message == "Failed to fetch" && name!= "ping")
+                    console.warn(`API function "${name}()" does not exist.`);
+                return {err};
+            }
+        }
+
+        function setIndicatorColour(col){
+            document.getElementById("indicator").style.borderColor = col;
+        }
+
+        async function ping(){
+            let result = await API("ping");
+            setIndicatorColour(result.err ? "rgb(230,0,0)" : "rgb(0,200,0)");
+        }
+
+        ping();
+        window.setInterval(ping,1000);
+    </script>
+</html>
