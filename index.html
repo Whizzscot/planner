@@ -125,29 +125,18 @@
             .template{
                 display:none;
             }
-
-            .drag-scroller{
-                display:none;
-                width:100vw;
-                position:fixed;
-                height:30vh;
-                z-index:11;
-                left:0px;
-            }
-
-            #topDS{
-                top:0px;
-            }
             
-            #bottomDS{
-                bottom:0px;
+            #update-order{
+                position:absolute;
+                margin-left: calc(50vw - 11em);
+                top:-2em;
+                transition:top 0.5s ease;
             }
         </style>
     </head>
     <body>
-        <div id="topDS" class="drag-scroller"></div>
-        <div id="bottomDS" class="drag-scroller"></div>
         <button disabled id="refresher">Refresh List</button>
+        <button disabled id="update-order">Update Order</button>
         <div id="indicator">
             <div id="pinging"></div>
             <form id="ping-option">

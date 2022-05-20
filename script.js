@@ -102,12 +102,13 @@ function clickHandler(e){
         switch(e.target.innerText){
             case "Delete":
                 if(isError) return elem.remove();
-                if(confirm(`Are you sure you want to delete the job "${JobList[elem.id].data.title}"?`)){
+                if(confirm(`Are you sure you want to delete the job "${JobList[elem.id].title}"?`)){
                     deleteJob(elem.id);
                     API("job",{id:elem.id},"delete").then(result=>{
                         if(result.err)console.log(result.err);
                     });
                 }
+                order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
             break;
             default:
 
@@ -116,7 +117,6 @@ function clickHandler(e){
         return;
     }
     if(!isError) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
-    //socket.emit("finish job",{un:toggleFinish(elem.firstChild.innerText),title:elem.firstChild.innerText});
 }
 
 var draggedItem = null;
@@ -132,15 +132,20 @@ function dragHandler(e){
     e.dataTransfer.dropEffect = "move";
 }
 
+var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
+
 function dragEndHandler(e){
-    let order = Array(...JobListElem.childNodes).indexOf(draggedItem);
-    API("moveJob",{_id:draggedItem.id,order},"put");
+    let newOrder = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
+    if(newOrder != order){
+        order = newOrder;
+        UpdateOrderButton.disabled = false;
+        UpdateOrderButton.style.top = "1em";
+    }
     draggedItem = null;
     e.target.classList.remove("dragging");
 }
 
 function dragEnterHandler(e){
-    
     let elem = e.target;
     while(!elem.matches("#job-list > li")){
         elem = elem.parentElement;
@@ -154,7 +159,6 @@ function dragEnterHandler(e){
     }else{
         JobListElem.appendChild(draggedItem);
     }
-
 }
 
 NewJobForm.addEventListener("submit", async e=>{
@@ -170,17 +174,27 @@ NewJobForm.addEventListener("submit", async e=>{
     }
     jobElem.classList.remove("pending");
     jobElem.id = result.body._id;
-    console.log(result);
+    // console.log(result);
     JobList[jobElem.id] = result.body;
     JobList[jobElem.id].elem = jobElem;
+    order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
 });
 
 const RefreshButton = document.getElementById("refresher");
+const UpdateOrderButton = document.getElementById("update-order");
+
+UpdateOrderButton.addEventListener("click",()=>{
+    API("order",{order},"put");
+    UpdateOrderButton.disabled = true;
+    UpdateOrderButton.style.top = null;
+})
 
 async function load(){
     JobListElem.innerHTML = "Loading Jobs...";
     RefreshButton.disabled = true;
     NewJobSubmit.disabled = true;
+    UpdateOrderButton.disabled = true;
+    UpdateOrderButton.style.top = null;
     let result = await API("jobs");
     RefreshButton.disabled = false;
     if(result.err)
@@ -192,6 +206,7 @@ async function load(){
     NewJobSubmit.disabled = false;
     //console.log(jobs);
     jobs.forEach(addJob);
+    order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
 }
 
 load();
