@@ -137,13 +137,13 @@ async function load(){
     RefreshButton.disabled = true;
     NewJobSubmit.disabled = true;
     let result = await API("jobs");
+    RefreshButton.disabled = false;
     if(result.err)
         return JobListElem.innerHTML = "Error loading jobs.<br>Please check that this is <a href='https://whizzscot.github.io/planner'>whizzscot.github.io/planner</a>, and you are connected to the internet.";
     if(result.body.err)
         return JobListElem.innerHTML = "Error loading jobs.<br>Please reload page.";
     let jobs = result.body.items;
     JobListElem.innerHTML = "";
-    RefreshButton.disabled = false;
     NewJobSubmit.disabled = false;
     //console.log(jobs);
     jobs.forEach(addJob);
