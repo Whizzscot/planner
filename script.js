@@ -130,7 +130,7 @@ NewJobForm.addEventListener("submit", async e=>{
     JobList[jobElem.id].elem = jobElem;
 });
 
-(async function(){
+async function load(){
     JobListElem.innerHTML = "Loading...";
     NewJobSubmit.disabled = true;
     let result = await API("jobs");
@@ -143,4 +143,6 @@ NewJobForm.addEventListener("submit", async e=>{
     NewJobSubmit.disabled = false;
     //console.log(jobs);
     jobs.forEach(addJob);
-})();
+}
+
+load();

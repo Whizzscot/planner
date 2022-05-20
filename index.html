@@ -9,8 +9,8 @@
                 background-color: white;
             }
 
-            p{
-                text-align: center;
+            #refresher{
+                margin:0.5em;
             }
 
             #indicator{
@@ -107,16 +107,10 @@
             .template{
                 display:none;
             }
-
-            @media screen and (max-width: 40em){
-                p{
-                    margin-top:2.5em;
-                }
-            }
         </style>
     </head>
     <body>
-        <p>Reload page to see changes made by other people.</p>
+        <button id="refresher" onclick="load()">Refresh List</button>
         <div id="indicator">
             <div id="pinging"></div>
             <form id="ping-option">
