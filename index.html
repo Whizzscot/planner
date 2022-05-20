@@ -6,8 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body{
-                padding-top:1em;
                 background-color: white;
+            }
+
+            p{
+                text-align: center;
             }
 
             #indicator{
@@ -18,7 +21,7 @@
                 width:20px;
                 height:20px;
                 position:fixed;
-                top:5px;
+                top:calc(0.5em +    5px);
                 right:5px;
                 display:flex;
                 align-items: center;
@@ -107,9 +110,12 @@
         </style>
     </head>
     <body>
+        <p>Reload page to see changes by other people.</p>
         <div id="indicator">
             <div id="pinging"></div>
             <form id="ping-option">
+                <!-- <label for="update pings">Update with Pings:</label>
+                <input type="checkbox" id="update pings" name="update pings"> -->
                 <label for="send pings">Send Pings:</label>
                 <input type="checkbox" id="send pings" name="send pings">
             </form>
@@ -145,7 +151,7 @@
                 };
             } catch(err) {
                 if(err.message == "Failed to fetch" && name!= "ping")
-                    console.warn(`API function call "${name}()" with method ${method} failed.`);
+                    console.warn(`API function call "${name}()" with method "${method}" failed.`);
                 return {err};
             }
         }
