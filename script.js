@@ -130,8 +130,11 @@ NewJobForm.addEventListener("submit", async e=>{
     JobList[jobElem.id].elem = jobElem;
 });
 
+const RefreshButton = document.getElementById("refresher");
+
 async function load(){
     JobListElem.innerHTML = "Loading...";
+    RefreshButton.disabled = true;
     NewJobSubmit.disabled = true;
     let result = await API("jobs");
     if(result.err)
@@ -140,9 +143,11 @@ async function load(){
         return JobListElem.innerHTML = "Error loading jobs.<br>Please reload page.";
     let jobs = result.body.items;
     JobListElem.innerHTML = "";
+    RefreshButton.disabled = false;
     NewJobSubmit.disabled = false;
     //console.log(jobs);
     jobs.forEach(addJob);
 }
 
 load();
+RefreshButton.addEventListener("click",load);
