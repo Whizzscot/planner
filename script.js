@@ -110,8 +110,11 @@ function clickHandler(e){
                 }
                 order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
             break;
+            case "Edit":
+                console.warn("Work in Progress!");
+            break;
             default:
-
+                console.log("Unexpected Button with no function to call",e.target.innerText);
             break;
         }
         return;
