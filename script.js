@@ -61,8 +61,12 @@ function createJobItem(job){
     elem.classList.remove("template");
     if(job.finished) elem.classList.add("finished");
     if(job._id) elem.id = job._id;
-    elem.firstChild.innerText = job.title;
+    elem.firstChild.firstChild.innerText = job.title;
     elem.addEventListener("click", clickHandler);
+    elem.firstElementChild.addEventListener("dragenter", dragEnterHandler);
+    elem.firstElementChild.addEventListener("dragstart", dragStartHandler);
+    elem.firstElementChild.addEventListener("drag", dragHandler);
+    elem.firstElementChild.addEventListener("dragend", dragEndHandler);
     return JobListElem.appendChild(elem);
 }
 
@@ -89,13 +93,16 @@ function toggleFinish(id){
 }
 
 function clickHandler(e){
-    let elem = e.target.matches("#job-list > li") ? e.target : e.target.parentElement;
+    let elem = e.target;
+    while(!elem.matches("#job-list > li")){
+        elem = elem.parentElement;
+    }
     let isError = elem.classList.contains("error");
     if(e.target.tagName == 'BUTTON'){
         switch(e.target.innerText){
             case "Delete":
                 if(isError) return elem.remove();
-                if(confirm(`Are you sure you want to delete the job "${elem.firstChild.innerText}"?`)){
+                if(confirm(`Are you sure you want to delete the job "${JobList[elem.id].data.title}"?`)){
                     deleteJob(elem.id);
                     API("job",{id:elem.id},"delete").then(result=>{
                         if(result.err)console.log(result.err);
@@ -110,6 +117,44 @@ function clickHandler(e){
     }
     if(!isError) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
     //socket.emit("finish job",{un:toggleFinish(elem.firstChild.innerText),title:elem.firstChild.innerText});
+}
+
+var draggedItem = null;
+
+function dragStartHandler(e){
+    draggedItem = e.target.parentElement;
+    e.target.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+}
+
+function dragHandler(e){
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+}
+
+function dragEndHandler(e){
+    let order = Array(...JobListElem.childNodes).indexOf(draggedItem);
+    API("moveJob",{_id:draggedItem.id,order},"put");
+    draggedItem = null;
+    e.target.classList.remove("dragging");
+}
+
+function dragEnterHandler(e){
+    
+    let elem = e.target;
+    while(!elem.matches("#job-list > li")){
+        elem = elem.parentElement;
+    }
+    if(elem.isSameNode(draggedItem)) return;
+    let diff = (draggedItem.getBoundingClientRect().y-elem.getBoundingClientRect().y)>0;
+    if(diff){
+        JobListElem.insertBefore(draggedItem, elem);
+    }else if(elem.nextElementSibling){
+        JobListElem.insertBefore(draggedItem, elem.nextElementSibling);
+    }else{
+        JobListElem.appendChild(draggedItem);
+    }
+
 }
 
 NewJobForm.addEventListener("submit", async e=>{
