@@ -220,7 +220,8 @@
             if(e.target.tagName == 'BUTTON'){
                 switch(e.target.innerText){
                     case "Delete":
-                        if(isError || confirm(`Are you sure you want to delete the job "${elem.firstChild.innerText}"?`)){
+                        if(isError) return elem.remove();
+                        if(confirm(`Are you sure you want to delete the job "${elem.firstChild.innerText}"?`)){
                             deleteJob(elem.id);
                             API("job",{id:elem.id},"delete").then(result=>{
                                 if(result.err)console.log(result.err);
