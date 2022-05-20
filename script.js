@@ -133,7 +133,7 @@ NewJobForm.addEventListener("submit", async e=>{
 const RefreshButton = document.getElementById("refresher");
 
 async function load(){
-    JobListElem.innerHTML = "Loading...";
+    JobListElem.innerHTML = "Loading Jobs...";
     RefreshButton.disabled = true;
     NewJobSubmit.disabled = true;
     let result = await API("jobs");

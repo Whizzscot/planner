@@ -10,7 +10,7 @@
             }
 
             #refresher{
-                margin:0.5em;
+                margin-top:0.5em;
                 margin-left:0px;
             }
 
@@ -111,7 +111,7 @@
         </style>
     </head>
     <body>
-        <button id="refresher">Refresh List</button>
+        <button disabled id="refresher">Refresh List</button>
         <div id="indicator">
             <div id="pinging"></div>
             <form id="ping-option">
@@ -121,7 +121,7 @@
                 <input type="checkbox" id="send pings" name="send pings">
             </form>
         </div>
-        <ul id="job-list"></ul>
+        <ul id="job-list">Please Wait...</ul>
         <form id="new-job-form">
             <!-- <label for="urgent">Urgent:</label>
             <input type="checkbox" name="urgent"> -->
