@@ -145,7 +145,7 @@
                 };
             } catch(err) {
                 if(err.message == "Failed to fetch" && name!= "ping")
-                    console.warn(`API function "${name}()" does not exist.`);
+                    console.warn(`API function call "${name}()" with method ${method} failed.`);
                 return {err};
             }
         }
@@ -247,7 +247,7 @@
             let result = await API("job", {title}, "post");
             if(result.err || result.body.error){
                 jobElem.classList.add("error");
-                return console.error(result);
+                //return console.error(result);
             }
             jobElem.classList.remove("pending");
             jobElem.id = result.body._id;
