@@ -3,14 +3,10 @@
     <head>
         <title>Planner</title>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            html,body{
-                margin:0px;
-                padding:0px;
-                display:flex;
-                flex-direction:column;
-                width:100vw;
-                height:100vh;
+            body{
+                padding-top:1em;
                 background-color: white;
             }
 
@@ -24,14 +20,111 @@
                 position:fixed;
                 top:5px;
                 right:5px;
+                display:flex;
+                align-items: center;
+            }
+
+            #pinging{
+                position:absolute;
+                background-color: red;
+                border:2px solid white;
+                border-radius:100%;
+                width:5px;
+                height:5px;
+                left:-15%;
+                top:-15%;
+                opacity:0;
+                animation: fade 0.5s cubic-bezier(0.92, -0.01, 0.25, -0.12) 0s 0 none;
+            }
+
+            @keyframes fade{
+                0%{opacity:1;}
+                100%{opacity:0;}
+            }
+
+            #ping-option{
+                position:absolute;
+                width:max-content;
+                right:calc(100% + 5px);
+                background-color:white;
+                padding:5px;
+                padding-top:1px;
+                padding-bottom:1px;
+                border-radius:7px;
+            }
+            #job-list{
+                border:1px solid black;
+                padding:5px;
+                background-color: rgb(230,230,230);
+            }
+
+            #job-list > li{
+                margin:5px;
+                padding:3px;
+                border:1px solid black;
+                list-style-type: none;
+                display:flex;
+                align-items: center;
+                background-color: white;
+            }
+
+            #job-list > li.pending{
+                color:grey;
+            }
+
+            #job-list > li.finished{
+                color:grey;
+                background-color:rgba(0,0,0,0.1);
+            }
+
+            #job-list > li.error{
+                color:red;
+            }
+
+            #job-list > li > span{
+                width: calc(100% - 106px);
+                margin: 2px;
+                overflow-wrap: break-word;
+            }
+
+            #job-list > li.finished > span{
+                text-decoration: line-through;
+            }
+
+            #job-list > li > *{
+                cursor:context-menu;
+            }
+
+            #job-list > li > button{
+                height:80%;
+                margin:2px;
+                text-decoration: none;
+            }
+            
+            .template{
+                display:none;
             }
         </style>
     </head>
     <body>
-        <div id="indicator"></div>
-        <form><label for="send pings">Send Pings:</label><input type="checkbox" id="send pings" name="send pings"></form>
+        <div id="indicator">
+            <div id="pinging"></div>
+            <form id="ping-option">
+                <label for="send pings">Send Pings:</label>
+                <input type="checkbox" id="send pings" name="send pings">
+            </form>
+        </div>
+        <ul id="job-list"></ul>
+        <form id="new-job-form">
+            <!-- <label for="urgent">Urgent:</label>
+            <input type="checkbox" name="urgent"> -->
+            <input type="text">
+            <input type="submit" value="Add job">
+        </form>
+        <li class="template"><span>.</span><button>Edit</button><button>Delete</button></li>
     </body>
     <script>
+        var JobList = {};
         const API_DIRECTORY = "https://elliotmcleish.wixsite.com/planner";
 
         async function API(name, args = {}, method = "get"){
@@ -39,12 +132,12 @@
                 let url = `${API_DIRECTORY}/_functions/${name}`;
                 url+="?";
                 for(let argname in args){
-                    url+=`${encodeURIComponent(argname)}=${encodeURIComponent(JSON.stringify(args[argname]))}&`;
+                    let value = (typeof args[argname] == 'string') ? args[argname] : JSON.stringify(args[argname]);
+                    url+=`${encodeURIComponent(argname)}=${encodeURIComponent(value)}&`;
                 }
                 url = url.slice(0,-1);
                 let response = await fetch(url, {method});
-                let isJSON = response.headers.get("Content-Type") == "application/json";
-                console.log(isJSON);
+                let isJSON = response.headers.get("Content-Type").split(";")[0] == "application/json";
                 return {
                     err:null,
                     response,
@@ -61,13 +154,115 @@
             document.getElementById("indicator").style.backgroundColor = col;
         }
 
+        const pingLight = document.getElementById("pinging");
+        var pingIntervalHandle;
+        document.getElementById("send pings").addEventListener("input",e=>{
+            if(e.target.checked){
+                ping();
+                pingIntervalHandle = window.setInterval(ping, 10000);
+            }else{
+                window.clearInterval(pingIntervalHandle);
+                setIndicatorColour(null);
+            }
+        });
+
         async function ping(){
-            if(!document.getElementById("send pings").checked) return;
+            pingLight.style.animation = 'none';
+            pingLight.offsetHeight;
+            pingLight.style.animation = null;
+            pingLight.style.animationIterationCount = 1;
             let result = await API("ping");
+            if(!document.getElementById("send pings").checked) return;
             setIndicatorColour(result.err ? "rgb(230,0,0)" : "rgb(0,200,0)");
         }
 
-        ping();
-        window.setInterval(ping,1000);
+        const JobListElem = document.getElementById("job-list");
+        const NewJobForm = document.getElementById("new-job-form");
+        const NewJobInput = NewJobForm.firstElementChild;
+        const NewJobSubmit = NewJobForm.lastElementChild;
+        const JobTemplate = document.querySelector("li.template");
+
+        function createJobItem(job){
+            let elem = JobTemplate.cloneNode(true);
+            elem.classList.remove("template");
+            if(job.finished) elem.classList.add("finished");
+            if(job._id) elem.id = job._id;
+            elem.firstChild.innerText = job.title;
+            elem.addEventListener("click", clickHandler);
+            return JobListElem.appendChild(elem);
+        }
+
+        function addJob(job, elem){
+            JobList[job._id] = job;
+            JobList[job._id].elem = createJobItem(job);
+            return JobList[job._id];
+        }
+
+        function deleteJob(id){
+            JobList[id].elem.remove();
+            delete JobList[id];
+        }
+
+        function toggleFinish(id){
+            if(JobList[id].finished){
+                JobList[id].finished = false;
+                JobList[id].elem.classList.remove("finished");
+            }else{
+                JobList[id].finished = true;
+                JobList[id].elem.classList.add("finished");
+            }
+            return JobList[id].finished;
+        }
+
+        function clickHandler(e){
+            let elem = e.target.matches("#job-list > li") ? e.target : e.target.parentElement;
+            let isError = elem.classList.contains("error");
+            if(e.target.tagName == 'BUTTON'){
+                switch(e.target.innerText){
+                    case "Delete":
+                        if(isError || confirm(`Are you sure you want to delete the job "${elem.firstChild.innerText}"?`)){
+                            deleteJob(elem.id);
+                            API("job",{id:elem.id},"delete").then(result=>{
+                                if(result.err)console.log(result.err);
+                            });
+                        }
+                    break;
+                    default:
+
+                    break;
+                }
+                return;
+            }
+            if(!isError) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
+            //socket.emit("finish job",{un:toggleFinish(elem.firstChild.innerText),title:elem.firstChild.innerText});
+        }
+
+        NewJobForm.addEventListener("submit", async e=>{
+            e.preventDefault();
+            let title = NewJobInput.value;
+            let jobElem = createJobItem({title});
+            jobElem.classList.add("pending");
+            NewJobInput.value = "";
+            let result = await API("job", {title}, "post");
+            if(result.err || result.body.error){
+                jobElem.classList.add("error");
+                return console.error(result);
+            }
+            jobElem.classList.remove("pending");
+            jobElem.id = result.body._id;
+            console.log(result);
+            JobList[jobElem.id] = result.body;
+            JobList[jobElem.id].elem = jobElem;
+        });
+
+        (async function(){
+            JobListElem.innerHTML = "Loading...";
+            NewJobSubmit.disabled = true;
+            let jobs = (await API("jobs")).body.items;
+            JobListElem.innerHTML = "";
+            NewJobSubmit.disabled = false;
+            //console.log(jobs);
+            jobs.forEach(addJob);
+        })();
     </script>
 </html>
