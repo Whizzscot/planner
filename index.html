@@ -265,7 +265,12 @@
         (async function(){
             JobListElem.innerHTML = "Loading...";
             NewJobSubmit.disabled = true;
-            let jobs = (await API("jobs")).body.items;
+            let result = await API("jobs");
+            if(result.err)
+                return JobListElem.innerHTML = "Error loading jobs.<br>Please check that this is <a href='https://whizzscot.github.io/planner'>whizzscot.github.io/planner</a>, and you are connected to the internet.";
+            if(result.body.err)
+                return JobListElem.innerHTML = "Error loading jobs.<br>Please reload page.";
+            let jobs = result.body.items;
             JobListElem.innerHTML = "";
             NewJobSubmit.disabled = false;
             //console.log(jobs);
