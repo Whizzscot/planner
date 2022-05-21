@@ -1,4 +1,4 @@
-const version = "2";
+const version = "2.1";
 
 document.head.querySelector("title").innerText += version;
 
@@ -140,6 +140,8 @@ function dragStart(e){
     draggedItem = e.target;
     while(!draggedItem.matches("#job-list > li"))
         draggedItem = draggedItem.parentElement;
+    if(e.type == "touchstart")
+        e.preventDefault();
 }
 
 function drag(e){
