@@ -61,12 +61,15 @@ function createJobItem(job){
     elem.classList.remove("template");
     if(job.finished) elem.classList.add("finished");
     if(job._id) elem.id = job._id;
-    elem.firstChild.firstChild.innerText = job.title;
+    elem.querySelector(".content > span").innerText = job.title;
     elem.addEventListener("click", clickHandler);
-    elem.firstElementChild.addEventListener("dragenter", dragEnterHandler);
-    elem.firstElementChild.addEventListener("dragstart", dragStartHandler);
-    elem.firstElementChild.addEventListener("drag", dragHandler);
-    elem.firstElementChild.addEventListener("dragend", dragEndHandler);
+    elem.addEventListener("mousedown", dragStart);
+    elem.addEventListener("mousemove", drag);
+    elem.addEventListener("mouseup", dragEnd);
+    //elem.firstElementChild.addEventListener("dragenter", dragEnterHandler);
+    //elem.firstElementChild.addEventListener("dragstart", dragStartHandler);
+    //elem.firstElementChild.addEventListener("drag", dragHandler);
+    //elem.firstElementChild.addEventListener("dragend", dragEndHandler);
     return JobListElem.appendChild(elem);
 }
 
@@ -122,9 +125,43 @@ function clickHandler(e){
     if(!isError) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
 }
 
+var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
 var draggedItem = null;
 
-function dragStartHandler(e){
+function dragStart(e){
+    draggedItem = e.target;
+    while(!draggedItem.matches("#job-list > li"))
+        draggedItem = draggedItem.parentElement;
+}
+
+function drag(e){
+    if(!draggedItem)return;
+    let elem = e.target;
+    while(!elem.matches("#job-list > li"))
+        elem = elem.parentElement;
+    draggedItem.classList.add("dragging");
+    if(elem.isSameNode(draggedItem)) return;
+    let lower = (elem.getBoundingClientRect().y-draggedItem.getBoundingClientRect().y) < 0;
+    if(lower){
+        JobListElem.insertBefore(draggedItem, elem);
+    }else if(elem.nextElementSibling){
+        JobListElem.insertBefore(draggedItem, elem.nextElementSibling);
+    }else{
+        JobListElem.appendChild(draggedItem);
+    }
+}
+
+function dragEnd(e){
+    let newOrder = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
+    if(newOrder.length != order.length || !order.every((id,val)=>{return newOrder[val] == id})){
+        order = newOrder;
+        UpdateOrderButton.disabled = false;
+        UpdateOrderButton.style.top = "1em";
+    }
+    draggedItem.classList.remove("dragging");
+    draggedItem = null;
+}
+/*function dragStartHandler(e){
     draggedItem = e.target.parentElement;
     e.target.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
@@ -134,8 +171,6 @@ function dragHandler(e){
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 }
-
-var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
 
 function dragEndHandler(e){
     let newOrder = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
@@ -162,7 +197,7 @@ function dragEnterHandler(e){
     }else{
         JobListElem.appendChild(draggedItem);
     }
-}
+}*/
 
 NewJobForm.addEventListener("submit", async e=>{
     e.preventDefault();

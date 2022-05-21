@@ -107,7 +107,7 @@
                 color:red;
             }
 
-            .content.dragging{
+            .dragging > .content{
                 background-color: rgba(255,255,200,0.9);
             }
 
@@ -162,7 +162,13 @@
             <input type="text">
             <input type="submit" value="Add job">
         </form>
-        <li class="template"><div class="content" draggable="true"><span>.</span><button>Edit</button><button>Delete</button></div></li>
+        <li class="template">
+            <div class="content">
+                <span>.</span>
+                <button>Edit</button>
+                <button>Delete</button>
+            </div>
+        </li>
     </body>
     <script src="script.js"></script>
 </html>
