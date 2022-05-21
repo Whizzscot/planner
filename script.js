@@ -161,43 +161,6 @@ function dragEnd(e){
     draggedItem.classList.remove("dragging");
     draggedItem = null;
 }
-/*function dragStartHandler(e){
-    draggedItem = e.target.parentElement;
-    e.target.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-}
-
-function dragHandler(e){
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-}
-
-function dragEndHandler(e){
-    let newOrder = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
-    if(newOrder != order){
-        order = newOrder;
-        UpdateOrderButton.disabled = false;
-        UpdateOrderButton.style.top = "1em";
-    }
-    draggedItem = null;
-    e.target.classList.remove("dragging");
-}
-
-function dragEnterHandler(e){
-    let elem = e.target;
-    while(!elem.matches("#job-list > li")){
-        elem = elem.parentElement;
-    }
-    if(elem.isSameNode(draggedItem)) return;
-    let diff = (draggedItem.getBoundingClientRect().y-elem.getBoundingClientRect().y)>0;
-    if(diff){
-        JobListElem.insertBefore(draggedItem, elem);
-    }else if(elem.nextElementSibling){
-        JobListElem.insertBefore(draggedItem, elem.nextElementSibling);
-    }else{
-        JobListElem.appendChild(draggedItem);
-    }
-}*/
 
 NewJobForm.addEventListener("submit", async e=>{
     e.preventDefault();
