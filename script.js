@@ -63,9 +63,9 @@ function createJobItem(job){
     if(job._id) elem.id = job._id;
     elem.querySelector(".content > span").innerText = job.title;
     elem.addEventListener("click", clickHandler);
-    elem.addEventListener("mousedown", dragStart);
-    elem.addEventListener("mousemove", drag);
-    elem.addEventListener("mouseup", dragEnd);
+    elem.addEventListener("pointerdown", dragStart);
+    elem.addEventListener("pointermove", drag);
+    elem.addEventListener("pointerup", dragEnd);
     //elem.firstElementChild.addEventListener("dragenter", dragEnterHandler);
     //elem.firstElementChild.addEventListener("dragstart", dragStartHandler);
     //elem.firstElementChild.addEventListener("drag", dragHandler);
