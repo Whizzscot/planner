@@ -1,3 +1,7 @@
+const version = "1";
+
+document.head.querySelector("title").innerText += version;
+
 var JobList = {};
 const API_DIRECTORY = "https://elliotmcleish.wixsite.com/planner";
 
@@ -62,10 +66,14 @@ function createJobItem(job){
     if(job.finished) elem.classList.add("finished");
     if(job._id) elem.id = job._id;
     elem.querySelector(".content > span").innerText = job.title;
+    let touchHandle = elem.querySelector(".content > span");
     elem.addEventListener("click", clickHandler);
-    elem.addEventListener("pointerdown", dragStart);
-    elem.addEventListener("pointermove", drag);
-    elem.addEventListener("pointerup", dragEnd);
+    elem.addEventListener("mousedown", dragStart);
+    touchHandle.addEventListener("touchstart", dragStart);
+    elem.addEventListener("mousemove", drag);
+    touchHandle.addEventListener("touchmove", drag);
+    elem.addEventListener("mouseup", dragEnd);
+    touchHandle.addEventListener("touchend", dragEnd);
     //elem.firstElementChild.addEventListener("dragenter", dragEnterHandler);
     //elem.firstElementChild.addEventListener("dragstart", dragStartHandler);
     //elem.firstElementChild.addEventListener("drag", dragHandler);
@@ -137,8 +145,24 @@ function dragStart(e){
 function drag(e){
     if(!draggedItem)return;
     let elem = e.target;
-    while(!elem.matches("#job-list > li"))
-        elem = elem.parentElement;
+    if(e.type == 'touchmove'){
+        elem = null;
+        let touchY = e.targetTouches[0].clientY;
+        for(let item of JobListElem.childNodes){
+            let itemBox = item.getBoundingClientRect();
+            if(touchY < itemBox.bottom){
+                // console.log(item);
+                if(touchY > itemBox.top) elem = item;
+                break;
+            }
+        }
+        //console.log(elem);
+        if(!elem) return;
+    }else{
+        while(!elem.matches("#job-list > li")){
+            elem = elem.parentElement;
+        }
+    }
     draggedItem.classList.add("dragging");
     if(elem.isSameNode(draggedItem)) return;
     let lower = (elem.getBoundingClientRect().y-draggedItem.getBoundingClientRect().y) < 0;
