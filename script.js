@@ -1,4 +1,4 @@
-const version = "1";
+const version = "2";
 
 document.head.querySelector("title").innerText += version;
 
