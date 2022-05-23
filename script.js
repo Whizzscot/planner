@@ -1,4 +1,4 @@
-const version = "3";
+const version = "3.1";
 
 document.head.querySelector("title").innerText += version;
 
@@ -33,7 +33,9 @@ function setIndicatorColour(col){
 }
 
 const pingLight = document.getElementById("pinging");
+const responseLight = document.getElementById("ping-response");
 var pingIntervalHandle;
+var lastClientUpdate = Date.now();
 document.getElementById("send pings").addEventListener("input",e=>{
     if(e.target.checked){
         ping();
@@ -51,7 +53,15 @@ async function ping(){
     pingLight.style.animationIterationCount = 1;
     let result = await API("ping");
     if(!document.getElementById("send pings").checked) return;
-    setIndicatorColour(result.err ? "rgb(230,0,0)" : "rgb(0,200,0)");
+    responseLight.style.animation = 'none';
+    responseLight.offsetHeight;
+    responseLight.style.animation = null;
+    responseLight.style.animationIterationCount = 1;
+    if(result.err) return setIndicatorColour("rgb(230,0,0");
+    console.log(new Date(result.body));
+    if((new Date(result.body).valueOf() - lastClientUpdate) > 0)
+        return setIndicatorColour("rgb(230,230,0");
+    setIndicatorColour("rgb(0,200,0)");
 }
 
 const JobListElem = document.getElementById("job-list");
@@ -101,6 +111,12 @@ function toggleFinish(id){
     return JobList[id].finished;
 }
 
+function clientUpdate(response){
+    if(response.err || response.body.error)
+        return console.log(response);
+    lastClientUpdate = Date.now();
+}
+
 function clickHandler(e){
     let elem = e.target;
     while(!elem.matches("#job-list > li")){
@@ -113,9 +129,7 @@ function clickHandler(e){
                 if(isError) return elem.remove();
                 if(confirm(`Are you sure you want to delete the job "${JobList[elem.id].title}"?`)){
                     deleteJob(elem.id);
-                    API("job",{id:elem.id},"delete").then(result=>{
-                        if(result.err)console.log(result.err);
-                    });
+                    API("job",{id:elem.id},"delete").then(clientUpdate);
                 }
                 order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
             break;
@@ -128,7 +142,7 @@ function clickHandler(e){
             case "Save":
                 let title = elem.querySelector(".title").innerText;
                 JobList[elem.id].title = title;
-                API("job",{_id:elem.id,title},"put");
+                API("job",{_id:elem.id,title},"put").then(clientUpdate)
             case "Cancel":
                 elem.querySelector(".title").contentEditable = 'inherit';
                 elem.querySelector(".title").innerText = JobList[elem.id].title;
@@ -141,7 +155,7 @@ function clickHandler(e){
         }
         return;
     }
-    if(!isError && elem.querySelector(".title").contentEditable != 'true') API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
+    if(!isError && elem.querySelector(".title").contentEditable != 'true') API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put").then(clientUpdate);
 }
 
 var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
@@ -246,6 +260,7 @@ NewJobForm.addEventListener("submit", async e=>{
         jobElem.classList.add("error");
         //return console.error(result);
     }
+    lastClientUpdate = Date.now();
     jobElem.classList.remove("pending");
     jobElem.id = result.body._id;
     // console.log(result);
@@ -258,7 +273,7 @@ const RefreshButton = document.getElementById("refresher");
 const UpdateOrderButton = document.getElementById("update-order");
 
 UpdateOrderButton.addEventListener("click",()=>{
-    API("order",{order},"put");
+    API("order",{order},"put").then(clientUpdate);
     UpdateOrderButton.disabled = true;
     UpdateOrderButton.style.top = null;
 })
@@ -280,7 +295,9 @@ async function load(){
     NewJobSubmit.disabled = false;
     //console.log(jobs);
     jobs.forEach(addJob);
+    lastClientUpdate = Date.now();
     order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
+    ping();
 }
 
 load();

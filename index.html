@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Planner - 3 - </title>
+        <title>Planner - 3.1 - </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
@@ -46,6 +46,19 @@
                 width:5px;
                 height:5px;
                 left:-15%;
+                top:-15%;
+                opacity:0;
+                animation: fade 0.5s cubic-bezier(0.92, -0.01, 0.25, -0.12) 0s 0 none;
+            }
+            
+            #ping-response{
+                position:absolute;
+                background-color: blue;
+                border:2px solid white;
+                border-radius:100%;
+                width:5px;
+                height:5px;
+                right:-15%;
                 top:-15%;
                 opacity:0;
                 animation: fade 0.5s cubic-bezier(0.92, -0.01, 0.25, -0.12) 0s 0 none;
@@ -194,6 +207,7 @@
         <button disabled id="update-order">Update Order</button>
         <div id="indicator">
             <div id="pinging"></div>
+            <div id="ping-response"></div>
             <form id="ping-option">
                 <!-- <label for="update pings">Update with Pings:</label>
                 <input type="checkbox" id="update pings" name="update pings"> -->
