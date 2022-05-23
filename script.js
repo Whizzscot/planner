@@ -1,4 +1,4 @@
-const version = "2.1";
+const version = "3";
 
 document.head.querySelector("title").innerText += version;
 
@@ -120,21 +120,16 @@ function clickHandler(e){
                 order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
             break;
             case "Edit":
-                elem.querySelector(".title").readOnly = false;
                 elem.querySelector(".title").contentEditable = 'true';
                 elem.querySelector(".title").focus();
                 e.target.innerText = "Save";
                 e.target.nextElementSibling.innerText = "Cancel";
             break;
             case "Save":
-                //elem.querySelector(".title").readOnly = true;
                 let title = elem.querySelector(".title").innerText;
                 JobList[elem.id].title = title;
-                //e.target.innerText = "Edit";
-                //e.target.nextElementSibling.innerText = "Delete";
                 API("job",{_id:elem.id,title},"put");
             case "Cancel":
-                elem.querySelector(".title").readOnly = true;
                 elem.querySelector(".title").contentEditable = 'inherit';
                 elem.querySelector(".title").innerText = JobList[elem.id].title;
                 elem.querySelector(".button1").innerText = "Edit";
@@ -146,7 +141,7 @@ function clickHandler(e){
         }
         return;
     }
-    if(!isError && elem.querySelector(".title").readOnly) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
+    if(!isError && elem.querySelector(".title").contentEditable != 'true') API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
 }
 
 var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
@@ -156,7 +151,7 @@ function dragStart(e){
     draggedItem = e.target;
     while(!draggedItem.matches("#job-list > li"))
         draggedItem = draggedItem.parentElement;
-    if(!draggedItem.querySelector(".title").readOnly)
+    if(draggedItem.querySelector(".title").contentEditable == 'true')
         draggedItem = null;
     if(e.type == "touchstart")
         e.preventDefault();
