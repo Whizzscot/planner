@@ -65,8 +65,9 @@ function createJobItem(job){
     elem.classList.remove("template");
     if(job.finished) elem.classList.add("finished");
     if(job._id) elem.id = job._id;
-    elem.querySelector(".content > span").innerText = job.title;
-    let touchHandle = elem.querySelector(".content > span");
+    let touchHandle = elem.querySelector(".title");
+    touchHandle.innerText = job.title;
+    touchHandle.addEventListener("focus",e=>{e.target.setSelectionRange(e.target.value.length,e.target.value.length);});
     elem.addEventListener("click", clickHandler);
     elem.addEventListener("mousedown", dragStart);
     touchHandle.addEventListener("touchstart", dragStart);
@@ -74,10 +75,6 @@ function createJobItem(job){
     touchHandle.addEventListener("touchmove", drag);
     elem.addEventListener("mouseup", dragEnd);
     touchHandle.addEventListener("touchend", dragEnd);
-    //elem.firstElementChild.addEventListener("dragenter", dragEnterHandler);
-    //elem.firstElementChild.addEventListener("dragstart", dragStartHandler);
-    //elem.firstElementChild.addEventListener("drag", dragHandler);
-    //elem.firstElementChild.addEventListener("dragend", dragEndHandler);
     return JobListElem.appendChild(elem);
 }
 
@@ -122,15 +119,31 @@ function clickHandler(e){
                 order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
             break;
             case "Edit":
-                console.warn("Work in Progress!");
+                elem.querySelector(".title").readOnly = false;
+                elem.querySelector(".title").focus();
+                e.target.innerText = "Save";
+                e.target.nextElementSibling.innerText = "Cancel";
             break;
+            case "Save":
+                elem.querySelector(".title").readOnly = true;
+                let title = elem.querySelector(".title").value;
+                JobList[elem.id].title = title
+                e.target.innerText = "Edit";
+                e.target.nextElementSibling.innerText = "Delete";
+                API("job",{_id:elem.id,title},"put");
+            break;
+            case "Cancel":
+                elem.querySelector(".title").readOnly = true;
+                elem.querySelector(".title").value = JobList[elem.id].title;
+                e.target.innerText = "Delete";
+                e.target.previousElementSibling.innerText = "Edit";
             default:
                 console.log("Unexpected Button with no function to call",e.target.innerText);
             break;
         }
         return;
     }
-    if(!isError) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
+    if(!isError && elem.querySelector(".title").readOnly) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put");
 }
 
 var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
@@ -140,12 +153,14 @@ function dragStart(e){
     draggedItem = e.target;
     while(!draggedItem.matches("#job-list > li"))
         draggedItem = draggedItem.parentElement;
+    if(!draggedItem.querySelector(".title").readOnly)
+        draggedItem = null;
     if(e.type == "touchstart")
         e.preventDefault();
 }
 
 function drag(e){
-    if(!draggedItem)return;
+    if(!draggedItem) return;
     let elem = e.target;
     if(e.type == 'touchmove'){
         elem = null;
@@ -178,6 +193,7 @@ function drag(e){
 }
 
 function dragEnd(e){
+    if(!draggedItem) return;
     let newOrder = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
     if(newOrder.length != order.length || !order.every((id,val)=>{return newOrder[val] == id})){
         order = newOrder;
@@ -191,6 +207,7 @@ function dragEnd(e){
 NewJobForm.addEventListener("submit", async e=>{
     e.preventDefault();
     let title = NewJobInput.value;
+    if(!NewJobInput.value) return NewJobInput.focus();
     let jobElem = createJobItem({title});
     jobElem.classList.add("pending");
     NewJobInput.value = "";

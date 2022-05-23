@@ -82,7 +82,7 @@
 
             }
 
-            .content{
+            .content, .editor{
                 display:flex;
                 align-items: center;
                 margin:0px;
@@ -108,13 +108,29 @@
                 background-color: rgba(255,255,200,0.9);
             }
 
-            .content > span{
+            .title{
                 width: calc(100% - 106px);
                 margin: 2px;
                 overflow-wrap: break-word;
+                height:1em;
+                font:inherit;
+                resize: none;
+                overflow:hidden;
+                outline: none;
+                background-color:rgba(0,0,0,0);
+                cursor:inherit;
+                border:none;
+                user-select: none;
             }
 
-            .finished > .content > span{
+            .title:not(:read-only){
+                cursor:text;
+                user-select: auto;
+                background-color:rgba(150, 150, 255, 0.2);
+                box-shadow: -1px 1px 5px 2px #0000001c inset;
+            }
+
+            .finished > .content > .title{
                 text-decoration: line-through;
             }
 
@@ -122,8 +138,7 @@
                 cursor:context-menu;
             }
 
-            .content > button{
-                height:80%;
+            #job-list > li > div > button{
                 margin:2px;
                 text-decoration: none;
             }
@@ -139,6 +154,36 @@
                 transition:top 0.5s ease;
                 z-index:7;
             }
+
+            #tabs{
+                white-space: nowrap;
+                overflow: auto;
+            }
+
+            #tabs > span{
+                margin-right:10px;
+            }
+
+            #tabs::-webkit-scrollbar {
+                height: 5px;
+            }
+
+            #tabs::-webkit-scrollbar-track {
+                box-shadow: inset 0 0 5px rgb(250,250,250);
+            }
+            
+            #tabs::-webkit-scrollbar-thumb {
+                background: rgb(225,225,225); 
+                border-radius: 5px;
+            }
+
+            #tabs::-webkit-scrollbar-thumb:hover {
+                background: rgb(200,200,200); 
+            }
+            
+            #tabs::-webkit-scrollbar-thumb:active {
+                background: rgb(100,100,100); 
+            }
         </style>
     </head>
     <body>
@@ -153,16 +198,20 @@
                 <input type="checkbox" id="send pings" name="send pings">
             </form>
         </div>
+        <h1 id="tabs">
+            <span>Yesterday's Jobs</span>
+            <span>General Jobs</span>
+            <span>Today's Jobs</span>
+            <span>Tomorrow's Jobs</span>
+        </h1>
         <ul id="job-list">Please Wait...</ul>
         <form id="new-job-form">
-            <!-- <label for="urgent">Urgent:</label>
-            <input type="checkbox" name="urgent"> -->
             <input type="text">
             <input type="submit" value="Add job">
         </form>
         <li class="template">
             <div class="content">
-                <span>.</span>
+                <textarea readonly class="title">.</textarea>
                 <button>Edit</button>
                 <button>Delete</button>
             </div>
