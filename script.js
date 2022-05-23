@@ -79,6 +79,7 @@ function createJobItem(job){
     titleElem.innerText = job.title;
     titleElem.addEventListener("focus", selectEnd);
     titleElem.addEventListener("input", titleInputHandler);
+    titleElem.addEventListener("pointerdown", clickHandler);
     elem.addEventListener("click", clickHandler);
     elem.addEventListener("mousedown", dragStart);
     titleElem.addEventListener("touchstart", dragStart);
