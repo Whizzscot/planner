@@ -65,16 +65,17 @@ function createJobItem(job){
     elem.classList.remove("template");
     if(job.finished) elem.classList.add("finished");
     if(job._id) elem.id = job._id;
-    let touchHandle = elem.querySelector(".title");
-    touchHandle.innerText = job.title;
-    touchHandle.addEventListener("focus",e=>{e.target.setSelectionRange(e.target.value.length,e.target.value.length);});
+    let titleElem = elem.querySelector(".title");
+    titleElem.innerText = job.title;
+    titleElem.addEventListener("focus", selectEnd);
+    titleElem.addEventListener("input", titleInputHandler);
     elem.addEventListener("click", clickHandler);
     elem.addEventListener("mousedown", dragStart);
-    touchHandle.addEventListener("touchstart", dragStart);
+    titleElem.addEventListener("touchstart", dragStart);
     elem.addEventListener("mousemove", drag);
-    touchHandle.addEventListener("touchmove", drag);
+    titleElem.addEventListener("touchmove", drag);
     elem.addEventListener("mouseup", dragEnd);
-    touchHandle.addEventListener("touchend", dragEnd);
+    titleElem.addEventListener("touchend", dragEnd);
     return JobListElem.appendChild(elem);
 }
 
@@ -120,23 +121,25 @@ function clickHandler(e){
             break;
             case "Edit":
                 elem.querySelector(".title").readOnly = false;
+                elem.querySelector(".title").contentEditable = 'true';
                 elem.querySelector(".title").focus();
                 e.target.innerText = "Save";
                 e.target.nextElementSibling.innerText = "Cancel";
             break;
             case "Save":
-                elem.querySelector(".title").readOnly = true;
-                let title = elem.querySelector(".title").value;
-                JobList[elem.id].title = title
-                e.target.innerText = "Edit";
-                e.target.nextElementSibling.innerText = "Delete";
+                //elem.querySelector(".title").readOnly = true;
+                let title = elem.querySelector(".title").innerText;
+                JobList[elem.id].title = title;
+                //e.target.innerText = "Edit";
+                //e.target.nextElementSibling.innerText = "Delete";
                 API("job",{_id:elem.id,title},"put");
-            break;
             case "Cancel":
                 elem.querySelector(".title").readOnly = true;
-                elem.querySelector(".title").value = JobList[elem.id].title;
-                e.target.innerText = "Delete";
-                e.target.previousElementSibling.innerText = "Edit";
+                elem.querySelector(".title").contentEditable = 'inherit';
+                elem.querySelector(".title").innerText = JobList[elem.id].title;
+                elem.querySelector(".button1").innerText = "Edit";
+                elem.querySelector(".button2").innerText = "Delete";
+            break;
             default:
                 console.log("Unexpected Button with no function to call",e.target.innerText);
             break;
@@ -202,6 +205,38 @@ function dragEnd(e){
     }
     draggedItem.classList.remove("dragging");
     draggedItem = null;
+}
+
+function titleInputHandler(e){
+    let caretOffset = window.getSelection().focusOffset;
+    let text = e.target.textContent;
+    e.target.innerText = text;
+    if(text) moveCaret(e.target.firstChild, caretOffset);
+    if(e.inputType == 'insertParagraph') e.target.parentElement.querySelector(".button1").click();
+}
+
+function selectEnd(e){
+    // setSelectionRange doesn't work on <span> elements.
+    // let length = e.target.innerText.length;
+    // e.target.setSelectionRange(length, length);
+    /*let r = document.createRange();
+    let node = e.target.firstChild;
+    let endIndex = node.textContent.length;
+    r.setStart(node, endIndex);
+    r.setEnd(node, endIndex);
+    let s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);*/
+    moveCaret(e.target.firstChild, e.target.textContent.length);
+}
+
+function moveCaret(node, index){
+    let r = document.createRange();
+    r.setStart(node, index);
+    r.setEnd(node, index);
+    let s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);
 }
 
 NewJobForm.addEventListener("submit", async e=>{
