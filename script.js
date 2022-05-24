@@ -1,4 +1,4 @@
-const version = "3.1";
+const version = "3.2";
 
 document.head.querySelector("title").innerText += version;
 
@@ -79,7 +79,7 @@ function createJobItem(job){
     titleElem.innerText = job.title;
     titleElem.addEventListener("focus", selectEnd);
     titleElem.addEventListener("input", titleInputHandler);
-    titleElem.addEventListener("pointerdown", clickHandler);
+    titleElem.addEventListener("pointerup", clickHandler);
     elem.addEventListener("click", clickHandler);
     elem.addEventListener("mousedown", dragStart);
     titleElem.addEventListener("touchstart", dragStart);
@@ -156,7 +156,7 @@ function clickHandler(e){
         }
         return;
     }
-    if(!isError && elem.querySelector(".title").contentEditable != 'true') API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put").then(clientUpdate);
+    if(!isError && elem.querySelector(".title").contentEditable != 'true' && !elem.classList.contains("dragging")) API("job",{_id:elem.id,finished:toggleFinish(elem.id)},"put").then(clientUpdate);
 }
 
 var order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
