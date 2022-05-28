@@ -7,7 +7,7 @@ async function checkForUpdate(){
         let response = await fetch("https://api.github.com/repos/Whizzscot/planner/branches/main");
         let data = await response.json();
         let lastUpdateTime = new Date(data.commit.commit.author.date).valueOf();
-        return lastClientUpdate < lastUpdateTime ? 1 : 0;
+        return lastClientUpdate < lastUpdateTime ? alert("Your Client is out of Date!\nPlease refresh the page.")||1 : 0;
     } catch(err){
         return -1;
     }
@@ -292,8 +292,7 @@ UpdateOrderButton.addEventListener("click",()=>{
 })
 
 async function load(){
-    let needUpdate = await checkForUpdate();
-    if(needUpdate == 1) alert("Your Client is out of Date! Please refresh page.");
+    checkForUpdate();
     JobListElem.innerHTML = "Loading Jobs...";
     RefreshButton.disabled = true;
     NewJobSubmit.disabled = true;
