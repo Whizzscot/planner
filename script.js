@@ -292,6 +292,8 @@ UpdateOrderButton.addEventListener("click",()=>{
 })
 
 async function load(){
+    let needUpdate = await checkForUpdate();
+    if(needUpdate == 1) alert("Your Client is out of Date! Please refresh page.");
     JobListElem.innerHTML = "Loading Jobs...";
     RefreshButton.disabled = true;
     NewJobSubmit.disabled = true;
@@ -311,8 +313,6 @@ async function load(){
     lastClientUpdate = Date.now();
     order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
     ping();
-    let needUpdate = await checkForUpdate();
-    if(needUpdate == 1) alert("Your Client is out of Date! Please refresh page.");
 }
 
 load();
