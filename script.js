@@ -1,5 +1,18 @@
 const version = "3.2";
 
+const ClientDate = Date.now();
+
+async function checkForUpdate(){
+    try{
+        let response = await fetch("https://api.github.com/repos/Whizzscot/planner/branches/main");
+        let data = await response.json();
+        let lastUpdateTime = new Date(data.commit.commit.author.date).valueOf();
+        return lastClientUpdate < lastUpdateTime ? 1 : 0;
+    } catch(err){
+        return -1;
+    }
+}
+
 document.head.querySelector("title").innerText += version;
 
 var JobList = {};
@@ -58,7 +71,6 @@ async function ping(){
     responseLight.style.animation = null;
     responseLight.style.animationIterationCount = 1;
     if(result.err) return setIndicatorColour("rgb(230,0,0");
-    console.log(new Date(result.body));
     if((new Date(result.body).valueOf() - lastClientUpdate) > 0)
         return setIndicatorColour("rgb(230,230,0");
     setIndicatorColour("rgb(0,200,0)");
@@ -299,6 +311,8 @@ async function load(){
     lastClientUpdate = Date.now();
     order = Array(...JobListElem.childNodes).map(elem=>{return elem.id});
     ping();
+    let needUpdate = await checkForUpdate();
+    if(needUpdate == 1) alert("Your Client is out of Date! Please refresh page.");
 }
 
 load();
