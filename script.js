@@ -1,4 +1,4 @@
-const version = "3.3";
+const version = "3.4";
 
 const ClientDate = Date.now();
 
@@ -71,7 +71,7 @@ async function ping(){
     responseLight.style.animation = null;
     responseLight.style.animationIterationCount = 1;
     if(result.err) return setIndicatorColour("rgb(230,0,0");
-    if((new Date(result.body).valueOf() - lastClientUpdate) > 0)
+    if((new Date(parseInt(result.body)).valueOf() - lastClientUpdate) > 0)
         return setIndicatorColour("rgb(230,230,0");
     setIndicatorColour("rgb(0,200,0)");
 }
