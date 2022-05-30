@@ -93,6 +93,7 @@ TabsElem.querySelectorAll(".tab").forEach(tab=>{
     if(tab.classList.contains("active"))
         SelectedTab = tab;
     tab.addEventListener("click",tabClickHandler);
+    tab.addEventListener("pointerup",tabClickHandler);
 });
 
 const JobListElem = document.getElementById("job-list");
