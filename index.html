@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Planner - 3.1 - </title>
+        <title>Planner - 3.2 - </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
@@ -83,6 +83,7 @@
             #job-list{
                 border:1px solid black;
                 padding:5px;
+                margin:0px;
                 background-color: rgb(230,230,230);
                 user-select:none;
                 margin-bottom:2.5em;
@@ -174,9 +175,11 @@
                 overflow: auto;
                 display:flex;
                 flex-direction:row;
-                align-items: center;
+                align-items: end;
                 justify-content: space-between;
                 user-select: none;
+                padding-bottom:0.5em;
+                margin-bottom:0.5em;
             }
 
             .tab{
@@ -185,14 +188,15 @@
                 display:flex;
                 align-items: center;
                 justify-content: center;
-                border-bottom:1px solid black;
+                border:1px solid white;
+                border-bottom-color: black;
                 color:rgb(150,150,150);
                 cursor:pointer;
             }
 
             .tab.active{
                 color:black;
-                border:1px solid black;
+                border-color:black;
                 border-bottom:none;
                 cursor:context-menu;
             }
