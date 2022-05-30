@@ -76,6 +76,25 @@ async function ping(){
     setIndicatorColour("rgb(0,200,0)");
 }
 
+const TabsElem = document.getElementById("tabs");
+var Tabs = {};
+var SelectedTab = null;
+
+function tabClickHandler(e){
+    if(SelectedTab.isSameNode(e.target)) return;
+    TabsElem.querySelectorAll(".active").forEach(activeTab=>{activeTab.classList.remove("active")});
+    e.target.classList.add("active");
+    SelectedTab = e.target;
+}
+
+TabsElem.querySelectorAll(".tab").forEach(tab=>{
+    let tabName = tab.textContent;
+    Tabs[tabName] = tab;
+    if(tab.classList.contains("active"))
+        SelectedTab = tab;
+    tab.addEventListener("click",tabClickHandler);
+});
+
 const JobListElem = document.getElementById("job-list");
 const NewJobForm = document.getElementById("new-job-form");
 const NewJobInput = NewJobForm.firstElementChild;

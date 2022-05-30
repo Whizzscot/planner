@@ -172,12 +172,37 @@
             #tabs{
                 white-space: nowrap;
                 overflow: auto;
-                padding-bottom:0.5em;
-                margin-bottom:0.5em;
+                display:flex;
+                flex-direction:row;
+                align-items: center;
+                justify-content: space-between;
+                user-select: none;
             }
 
-            #tabs > span{
-                margin-right:10px;
+            .tab{
+                padding:0.5em;
+                flex:1;
+                display:flex;
+                align-items: center;
+                justify-content: center;
+                border-bottom:1px solid black;
+                color:rgb(150,150,150);
+                cursor:pointer;
+            }
+
+            .tab.active{
+                color:black;
+                border:1px solid black;
+                border-bottom:none;
+                cursor:context-menu;
+            }
+
+            .tab:not(.active):hover{
+                background-color: rgb(250,250,250);
+            }
+            
+            .tab:not(.active):active{
+                background-color: rgb(220,220,220);
             }
 
             #tabs::-webkit-scrollbar {
@@ -216,10 +241,10 @@
             </form>
         </div>
         <h3 id="tabs">
-            <span>Yesterday's Jobs</span>
-            <span>General Jobs</span>
-            <span>Today's Jobs</span>
-            <span>Tomorrow's Jobs</span>
+            <span class="tab">Yesterday</span>
+            <span class="tab active">General</span>
+            <span class="tab">Today</span>
+            <span class="tab">Tomorrow</span>
         </h3>
         <ul id="job-list">Please Wait...</ul>
         <form id="new-job-form">
